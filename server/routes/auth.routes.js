@@ -25,6 +25,7 @@ router.post('/signup', (req, res, next) => {
     if (!emailRegex.test(email)) {
       res.status(400).json({ message: 'Provide a valid email address.' });
       return;
+      
     }
     
     // Use regex to validate the password format

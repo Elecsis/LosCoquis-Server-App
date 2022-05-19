@@ -24,6 +24,9 @@ app.use("/api", isAuthenticated, allRoutes);
 const authRouter = require("./routes/auth.routes");          //  Auth Router
 app.use("/auth", authRouter); 
 
+const cheatSheetRouter = require("./routes/cheatSheet.routes");          //  Auth Router
+app.use("/api", isAuthenticated, cheatSheetRouter); 
+
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
 
