@@ -14,7 +14,8 @@ const cheatSheet = new Schema(
             experience: String,
             college: String,
             team: String
-        } ]
+        } ],
+        coquiId: { type: Schema.Types.ObjectId, ref: 'Coqui'}
     }
 );
 

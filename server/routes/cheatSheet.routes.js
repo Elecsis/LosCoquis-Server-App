@@ -1,9 +1,13 @@
 const CheatSheet = require("../models/CheatSheet.model");
+const Coqui = require('../models/Coqui.model')
 const express = require("express");
+
 
 const router = express.Router();
 
-router.post("/create-cheatsheet", (req, res, next) => {
+
+//Post route to add new cheatsheet for user(coqui)
+router.post("/create-cheatsheet",  (req, res, next) => {
     const { title, players } = req.body;
 
     console.log(req.body)
@@ -22,19 +26,25 @@ router.post("/create-cheatsheet", (req, res, next) => {
           return;
         }
 
-        CheatSheet.create({ title, players })
+        CheatSheet.create({ title, players, coquiId: req.payload._id })
             .then((createdCheatSheet) => {
-                // Deconstruct the newly created cheatSheet object to omit the password
-                // We should never expose passwords publicly
-                console.log('created cheatsheet', createdCheatSheet)
-                const { title, players, _id } = createdCheatSheet;
-            
-                // Create a new object that doesn't expose the password
-                const cheatSheet = { title, players, _id };
-        
-                // Send a json response containing the user object
-                res.status(201).json({ cheatSheet: cheatSheet });
+                
+              Coqui.findByIdAndUpdate(req.payload._id, {
+                $push: {
+                  cheatsheets: createdCheatSheet._id
+                }
+              })
+                .then((foundCoqui) => {
+                  // Send a json response containing the user object
+                res.status(201).json({ cheatSheet: createdCheatSheet });
                 return;
+                })
+                .catch(err => {
+                  console.log(err);
+                  res.status(500).json({ message: "Internal Server Error" })
+                  return;
+                 })
+                
             })
             .catch(err => {
                 console.log(err);
@@ -49,5 +59,20 @@ router.post("/create-cheatsheet", (req, res, next) => {
       });
 });
 
+
+// GET request for cheatsheet list
+
+router.get("/cheatsheet-home", (req, res, next) => {       // <== CREATE NEW ROUTE
+ 
+  const userId = req.payload._id;
+
+  Coqui.findById(userId)
+    .populate('cheatsheets')
+    .then(coqui => res.json(coqui))
+    .catch(err => {
+      console.log(err)
+      res.json(err)
+    })
+});
 
 module.exports = router
